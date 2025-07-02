@@ -1,10 +1,13 @@
+// ItemListPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { QrReader } from 'react-qr-reader';
 
 function ItemListPage() {
   const navigate = useNavigate();
   const [items, setItems] = useState(['Apple', 'Banana', 'Mango', 'Orange']);
   const [search, setSearch] = useState('');
+  const [scannedText, setScannedText] = useState('');
 
   const handleDelete = (itemToDelete) => {
     setItems(items.filter(item => item !== itemToDelete));
@@ -19,7 +22,28 @@ function ItemListPage() {
 
   return (
     <div className="item-container">
-      <h2 className="item-title">🍉 Your Item Manager</h2>
+      <div className="qr-container">
+        <QrReader
+          constraints={{ facingMode: 'environment' }}
+          onResult={(result, error) => {
+            if (!!result) {
+              const text = result?.text;
+              setScannedText(text);
+              if (!items.includes(text)) {
+                setItems(prev => [...prev, text]);
+              }
+            }
+          }}
+          style={{ width: '100%' }}
+        />
+      </div>
+
+      {scannedText && (
+        <p style={{ marginTop: '10px', color: '#333' }}>
+          ✅ Scanned: <strong>{scannedText}</strong>
+        </p>
+      )}
+
       <input
         type="text"
         className="item-search"
